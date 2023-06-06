@@ -48,8 +48,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (!existingMovie) {
                 throw new Error('Invalid ID');
             }
+            
+            const updatedFavoriteIds = without(currentUser.favoriteIds, movieId)
 
+            const updatedUser = await prismadb.user.update({
+                where: {
+                    email: currentUser.email || '',
+                },
+                data: {
+                    favoriteIds: updatedFavoriteIds,
+                }
+            });
+
+            return res.status(200).json(updatedUser);
         }
+
+        return res.status(405).end();
     } catch (error) {
         console.log(error);
         return res.status(400).end();
